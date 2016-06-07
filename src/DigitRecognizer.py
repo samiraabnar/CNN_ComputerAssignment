@@ -1,6 +1,8 @@
 import numpy as np
-import pylab
+import matplotlib
+import matplotlib.pyplot as plt
 import theano
+import theano.tensor as T
 import os
 import sys
 import gzip
@@ -56,7 +58,27 @@ class DigitRecognizer(object):
 
 
     def smart_training(self):
+
+
+
+
         self.model.build_model()
+
+        pixels = np.array(self.model.get_value(self.dev_x.eval())[0])
+        pixels = pixels.reshape(28, 28)
+
+        fig = plt.figure()
+        ax = fig.add_subplot(1, 3, 1);
+        plt.xticks(np.array([]))
+        plt.yticks(np.array([]))
+        # pixels = self.dev_x[0].eval()
+        # pixels = np.array(pixels, dtype='uint8')
+
+        # Reshape the array into 28 x 28 array (2-dimensional array)
+        pixels = pixels.reshape((28, 28))
+        ax.matshow(pixels, cmap=matplotlib.cm.binary)
+        #plt.show()
+
         print('... training')
         # early-stopping parameters
         patience = 10000  # look as this many examples regardless
@@ -120,11 +142,26 @@ class DigitRecognizer(object):
                         in range(int(self.number_of_batches_in_dev))]
 
         test_loss = np.mean(validation_losses)
-        img = self.model.layers[0].output[0]
-        pylab.subplot(1, 3, 1);
-        pylab.axis('off');
-        pylab.imshow(img)
 
+        ax2 = fig.add_subplot(1, 3, 2);
+        img = self.model.get_layer_output(self.dev_x[0 * self.batch_size:(0 + 1) * self.batch_size].eval())
+        pixels = np.array(img[0])
+        pixels = pixels.reshape(12, 12)
+        ax2.matshow(pixels, cmap=matplotlib.cm.binary)
+
+        ax3 = fig.add_subplot(1, 3, 3);
+        img = self.model.get_layer_output(self.dev_x[0 * self.batch_size:(0 + 1) * self.batch_size].eval())
+        pixels = np.array(img[1])
+        pixels = pixels.reshape(12, 12)
+        ax3.matshow(pixels, cmap=matplotlib.cm.binary)
+
+        plt.show()
+
+        fig = plt.figure()
+        axx = fig.add_subplot(1, 3, 1);
+        axx.matshow(self.model.layer[0].W)
+
+        plt.show
         test_score = 1 - test_loss
 
         print('Optimization complete.')
